@@ -1,0 +1,155 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Order model for vehicle lifecycle
+ */
+namespace org.watchain.firstHand 
+import org.watchain.users.*
+
+asset Watch identified by serialNumber {
+  //the serial number possible combinations (10!) set network capacity to 3,628,800 watches
+  o String serialNumber //regex=/([0-9]{10})/
+  //the ref identifies uniquely a watch model with material and movement
+  o String ref //regex=/((0)[1-3](ST|PL|GO))/
+  o WatchStatus status  
+  o Double lastPrice optional 
+  o Double retailPrice 
+  --> Manufacturer manufacturer
+  --> User owner
+}
+
+enum Movement{
+  o AUTOMATIC_01
+  o CHRONO_02
+  o TURBILLON_03
+}
+
+enum Material{
+  o STEEL_ST
+  o PLATINUM_PL
+  o GOLD_GO
+}  
+
+enum WatchStatus {
+  o NEW 
+  o ORDERED
+  o USED
+  o STOLEN
+  o RECOVERED
+}
+ 
+transaction CreateWatch {
+  o Watch watch
+}
+
+/**
+ * An order for a watch to be fulfilled by a manufacturer
+ * and dispatched to an orderer (User).
+ */
+asset Order identified by orderId {
+  o String orderId
+  --> Watch watch
+  //--> Manufacturer manufacturer  
+  --> Collector orderer
+  //--> Contract contract
+  o OrderStatus orderStatus
+  o UpdateOrder[] statusUpdates optional //TODO (LG): Unit test this
+}
+
+/**
+ * Status of an order placed to a Manufacturer by a collector 
+ */
+enum OrderStatus {
+  o SUBMITTED
+  o ACCEPTED
+  o READY
+  o ON_DELIVERY
+  o DELIVERED
+  o RECEIVED
+  o PAID
+  o OWNER_ASSIGNED //ownwer is assigned when payment and watch are received
+}
+
+transaction CreateOrder {
+  o Order order
+}
+
+transaction SubmitOrder{
+  o String orderId
+  o String serialNumber
+}
+
+event CreateOrderEvent {
+  o String orderId
+  --> Collector collector
+}
+
+/**
+ * Defines a contract between a Manufacturer, a Collector and a deliverer to deliver the new watches * in the order using a Courier, paying a set watch price.
+ */
+asset Contract identified by contractId {
+  o String contractId
+  o String orderId
+  --> Manufacturer manufacturer 
+  --> Collector collector
+  --> Courier courier
+}
+
+transaction SignContract {
+--> Contract contract
+}
+
+/**
+ * Transaction to update the status of an order
+ */
+transaction UpdateOrder {
+  o OrderStatus orderStatus
+  --> Order order
+}
+ 
+event UpdateOrderEvent {
+  o OrderStatus Status
+}
+
+transaction Delivery {
+  o Courier courier
+  --> Order order
+} 
+
+/** 
+ * A notification that a Delivery has been received by the
+ * orderer and that funds should be transferred from the orderer
+ * to the Manufacturer to pay for the Order.
+ */
+transaction DeliveryReceived extends Delivery {
+}
+
+event DeliveryReceivedEvent {
+    o String message
+    --> Order order
+}
+
+transaction ReportTheft {
+  --> Watch watch
+}
+
+event ReportTheftEvent {
+  o String message
+  --> Watch watch
+}
+
+transaction RecoverTheft {
+  --> Watch watch
+}

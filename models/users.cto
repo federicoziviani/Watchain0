@@ -1,0 +1,102 @@
+/**
+  * A library of standard reusable types
+  */
+namespace org.watchain.users
+
+abstract participant User identified by userId {
+  o String userId
+} 
+
+abstract participant Person extends User {
+  o String title optional
+  o String firstName  optional
+  o String lastName  optional
+  o String nationality optional
+  o Address address optional
+  o ContactDetails contactDetails optional
+  o BirthDetails birthDetails optional
+  o DeathDetails deathDetails optional
+  o Gender gender optional
+}
+ 
+/**
+ * An abstract participant type in this business network
+ */
+abstract participant Business extends User {
+  o Address headquarters optional
+  o String companyName optional
+  o ContactDetails contactDetails optional
+  o BirthDetails foundationDate optional
+  o DeathDetails terminationDate optional
+  --> Manager[] managers optional
+}
+
+abstract participant Employee extends Person {
+  --> Business employer
+  --> Manager manager optional
+  o DateTime joiningDate optional
+  o String employmentStatus optional
+  o String department optional
+  o String jobRole optional
+}
+
+abstract participant Manager extends Employee {
+  --> Employee[] directReports optional
+}
+
+participant Manufacturer extends Business{
+}
+
+participant Auctioneer extends Person {
+}
+
+participant Insurer extends Business {
+}
+
+participant Collector extends Person {
+  o Double availableBalance
+  o Double freezedBalance default= 0.0
+}
+
+participant Courier extends Business {
+}
+
+participant FCA extends Business {
+}
+
+concept ContactDetails {
+  o String email  optional
+  o String mobilePhone  optional
+  o String homePhone optional
+  o String workPhone optional
+  o Address address optional
+} 
+
+concept BirthDetails {
+  o DateTime dateOfBirth optional
+  o String placeOfBirth optional
+}
+
+concept DeathDetails {
+  o DateTime dateOfDeath optional
+  o String placeOfDeath optional
+}
+
+concept Address {
+  o String city optional
+  o String country optional
+  o String locality optional
+  o String region optional
+  o String street optional
+  o String street2 optional
+  o String street3 optional
+  o String postalCode optional
+  o String postOfficeBoxNumber optional
+}
+ 
+enum Gender {
+ o MALE
+ o FEMALE
+ o OTHER
+}
+

@@ -1,0 +1,109 @@
+/**
+ * Make an Order for a new Watch
+ * @param {org.watchain.firstHand.CreateOrder} createOrder - the order
+ * @transaction
+ */
+async function createOrder(createOrder) {  // eslint-disable-line no-unused-vars
+    
+    const orderRegistry = await getAssetRegistry('org.watchain.firstHand.Order.createOrder');
+    const collectorRegistry = await getParticipantRegistry('org.watchain.users.Collector');
+    const watchRegistry = await getAssetRegistry('org.watchain.firsthand.Watch');
+    const factory = getFactory();
+  	const order = factory.newResource('org.watchain.firstHand.Order', createOrder.orderId );
+    
+  	
+  	 
+     const watchNumber = await watchRegistry.get(createOrder.serialNumber);
+   	 const watch = factory.newRelationship('org.watchain.firstHand.Watch', watch.getIdentifier());
+     createOrder.serialNumber = watch;
+  
+  if (watch.status !== 'NEW') {
+        throw new Error('Watch not available to purchase as new from manufacturer');
+    }
+  
+  createOrder.orderStatus = 'SUBMITTED'
+  order.watch = watch;
+  order.orderStatus = createOrder.orderStatus;
+  order.manufacturer = watch.manufacturer;
+  
+	 // Participant aspects
+     const collector = factory.newRelationship('org.watchain.users.Collector', getCurrentParticipant().getIdentifier());
+    order.orderer = collector;
+
+    
+      //let manufacturerRegistry  = await getParticipantRegistry('org.watchain.users.Manufacturer');
+      //const toManufacturer = manufacturerRegistry.get(watch.manufacturer);
+   	  //const toManufacturerRef = factory.newRelationship('org.watchain.users.Manufacturer', manufacturer.getIdentifier());
+     // order.manufacturer = toManufacturerRef;
+
+
+    // save the new order
+    await orderRegistry.add(order);
+  
+  	//update watch status
+   let oldWatch = order.watch;
+    oldWatch.status = 'ORDERED';
+    //let watchRegistry = await getAssetRegistry('org.watchain.firstHand.Watch');
+    await watchRegistry.update(watch);
+  
+}
+
+
+Experimental CreateOrder:
+1.
+transaction CreateOrder {
+  o String orderId
+  o OrderStatus orderStatus
+  o String serialNumber regex=/([0-9]{10})/
+}
+
+2.
+transaction CreateOrder {
+  o String orderId
+  o OrderStatus orderStatus
+  o String serialNumber //regex=/([0-9]{10})/
+  --> Collector collector
+}
+
+version 2
+   const collectorRegistry = await getParticipantRegistry('org.watchain.users.Collector');
+   const fromCollector = getFactory().newRelationship('org.watchain.users.Collector', getCurrentParticipant().getIdentifier());
+    createOrder.collector = fromCollector;
+    order.orderer = fromCollector;
+
+
+
+    version 3
+    * Make an Order for a new Watch
+ * @param {org.watchain.firstHand.CreateOrder} Createorder - the order
+ * @transaction
+ */
+async function createOrder(CreateOrder) {  // eslint-disable-line no-unused-vars
+
+    let order = CreateOrder.order;
+    if (order.watch.status !== 'NEW') {
+        throw new Error('Watch not available to purchase as new from manufacturer');
+    }
+  
+  //forbid to order if u are not the owner of the order.
+    const factory = getFactory();
+    const collectorRegistry = await getParticipantRegistry('org.watchain.users.Collector');
+   const me = await collectorRegistry.get(order.orderer)
+    if (me.getIdentifier() != getCurrentParticipant().getIdentifier()) {
+        throw new Error('Watch not available to purchase as new from manufacturer');
+    }
+
+    //const fromCollector = getFactory().newRelationship('org.watchain.users.Collector', getCurrentParticipant().getIdentifier());
+    //order.orderer = fromCollector;
+
+    // save the new order
+    const orderRegistry = await getAssetRegistry('org.watchain.firstHand.Order');
+    await orderRegistry.add(order);
+  
+  	//update watch status
+    let watch = order.watch;
+    watch.status = 'ORDERED';
+    let watchRegistry = await getAssetRegistry('org.watchain.firstHand.Watch');
+    await watchRegistry.update(watch);
+}
+

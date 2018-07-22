@@ -45,6 +45,7 @@ enum Material{
 enum WatchStatus {
   o NEW 
   o ORDERED
+  o PRIVATE
   o USED
   o STOLEN
   o RECOVERED
@@ -63,9 +64,9 @@ asset Order identified by orderId {
   --> Watch watch
   //--> Manufacturer manufacturer  
   --> Collector orderer
-  //--> Contract contract
+  o Contract contract optional
   o OrderStatus orderStatus
-  o UpdateOrder[] statusUpdates optional //TODO (LG): Unit test this
+  o Boolean courierAssigned optional //TODO (LG): Unit test this
 }
 
 /**
@@ -81,14 +82,9 @@ enum OrderStatus {
   o PAID
   o OWNER_ASSIGNED //ownwer is assigned when payment and watch are received
 }
-
+ 
 transaction CreateOrder {
   o Order order
-}
-
-transaction SubmitOrder{
-  o String orderId
-  o String serialNumber
 }
 
 event CreateOrderEvent {
@@ -97,48 +93,52 @@ event CreateOrderEvent {
 }
 
 /**
+ * Transactions to update the status of an order
+ */
+
+transaction AcceptOrder {
+  o OrderStatus orderStatus default = 'ACCEPTED'
+  --> Order order
+}
+event AcceptOrderEvent {
+  o Order orderStatus
+}
+
+transaction OrderReady {
+  o OrderStatus orderStatus default = 'READY'
+  --> Order order
+}
+ 
+event OrderReadyEvent {
+  o OrderStatus Status
+}
+  
+/**
  * Defines a contract between a Manufacturer, a Collector and a deliverer to deliver the new watches * in the order using a Courier, paying a set watch price.
  */
 asset Contract identified by contractId {
   o String contractId
-  o String orderId
-  --> Manufacturer manufacturer 
-  --> Collector collector
+  --> Order order 
   --> Courier courier
 }
 
-transaction SignContract {
---> Contract contract
+transaction CreateContract {
+o Contract contract
 }
+  
 
-/**
- * Transaction to update the status of an order
- */
-transaction UpdateOrder {
-  o OrderStatus orderStatus
-  --> Order order
-}
- 
-event UpdateOrderEvent {
-  o OrderStatus Status
-}
-
-transaction Delivery {
+transaction Delivered {
   o Courier courier
   --> Order order
 } 
 
-/** 
- * A notification that a Delivery has been received by the
- * orderer and that funds should be transferred from the orderer
- * to the Manufacturer to pay for the Order.
- */
-transaction DeliveryReceived extends Delivery {
-}
-
-event DeliveryReceivedEvent {
+event DelivedEvent {
     o String message
     --> Order order
+}
+  
+transaction Received {
+  --> Order order
 }
 
 transaction ReportTheft {

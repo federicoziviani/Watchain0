@@ -18,7 +18,7 @@ abstract participant Person extends User {
   o DeathDetails deathDetails optional
   o Gender gender optional
 }
- 
+   
 /**
  * An abstract participant type in this business network
  */

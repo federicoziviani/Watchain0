@@ -21,12 +21,13 @@
 This business network defines:
 
 **Participants:**
-`Manufacturer` `Auctioneer` `Collector` `Courier`
+`Manufacturer` `Auctioneer` `Collector` `Courier` `Insurer` `FCA`
 
 **Assets:**
-`Watch` `WatchListing` `Order` `Contract`
+`Watch` `WatchListing` `Order` `Contract` 
 
 **Transactions:**
+<<<<<<< HEAD
 `Offer` `TerminateBidding` `CreateWatch` `MakeOrder` `ReportTheft` `TerminateBidding` `Delivery` `DeliveryReceived` `MakeListing`
 
 The `makeOffer` function is called when an `Offer` transaction is submitted. The logic simply checks that the listing for the offer is still for sale, and then adds the offer to the listing, and then updates the offers in the `WatchListing` asset registry.
@@ -136,3 +137,6 @@ Congratulations!
 
 ## License <a name="license"></a>
 Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the LICENSE file. Hyperledger Project documentation files are made available under the Creative Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
+=======
+`Offer` `TerminateBidding` `CreateWatch` `CreateOrder` `ReportTheft` `RecoverTheft` `TerminateBidding` `Delivered` `Received` `MakeListing` `AcceptOrder` `OrderReady` `CreateContract`  
+>>>>>>> 0b3363b9c724e7e0a074ae06d4e1436b8e9e8efa

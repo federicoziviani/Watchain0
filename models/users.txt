@@ -1,11 +1,26 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
   * A library of standard reusable types
   */
-namespace org.watchain.users
+namespace org.watchain.users 
 
 abstract participant User identified by userId {
   o String userId
-} 
+}
+
 
 abstract participant Person extends User {
   o String title optional
@@ -45,6 +60,10 @@ abstract participant Manager extends Employee {
 }
 
 participant Manufacturer extends Business{
+  o Double availableBalance
+  o Integer stock optional
+  o Integer sold optional
+  o Integer totalProduction optional
 }
 
 participant Auctioneer extends Person {
@@ -55,13 +74,13 @@ participant Insurer extends Business {
 
 participant Collector extends Person {
   o Double availableBalance
-  o Double freezedBalance default= 0.0
-}
+  o Double frozenBalance optional
+} 
 
 participant Courier extends Business {
 }
 
-participant FCA extends Business {
+participant Fca extends Business {
 }
 
 concept ContactDetails {
@@ -83,8 +102,8 @@ concept DeathDetails {
 }
 
 concept Address {
-  o String city optional
-  o String country optional
+  o String city 
+  o String country 
   o String locality optional
   o String region optional
   o String street optional

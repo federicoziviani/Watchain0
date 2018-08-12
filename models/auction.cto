@@ -16,15 +16,16 @@
  * Defines a data model for a blind watch auction
  */
 namespace org.watchain.auction 
-import org.watchain.users.*
+//import org.watchain.users.*
 import org.watchain.firstHand.*
+
  
 
 enum ListingState {
   o FOR_SALE
   o RESERVE_NOT_MET
   o SOLD
-}
+} 
 
 asset WatchListing identified by listingId {
   o String listingId

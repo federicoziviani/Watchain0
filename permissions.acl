@@ -12,8 +12,8 @@
  * limitations under the License.
  */
 rule R14{
-  description: "FCA oversights every transaction"
-  participant: "org.watchain.users.FCA"
+  description: "Fca oversights every transaction"
+  participant: "org.watchain.firstHand.Fca"
   operation: READ
   resource: "org.watchain.**"
   action:ALLOW
@@ -21,59 +21,66 @@ rule R14{
 
 rule R22{
   description: "Insurer oversights every transaction in firstHand"
-  participant: "org.watchain.users.Insurer"
+  participant: "org.watchain.firstHand.Insurer"
   operation: READ
   resource: "org.watchain.firstHand.*"
   action:ALLOW
 }
 
 rule R10{
-  description: "Every user can see the business users"
-  participant: "org.watchain.users.*"
+  description: "Every user can see the business participants"
+  participant: "org.watchain.firstHand.*" 
   operation: READ
-  resource: "org.watchain.users.Business"
+  resource: "org.watchain.firstHand.Business"
   action:ALLOW
 }
 
 rule R9{
   description: "Every user can perform oversight on every transaction on auction"
-  participant: "org.watchain.users.*"
+  participant: "org.watchain.firstHand.*"
   operation: READ
   resource: "org.watchain.auction.*"
   action:ALLOW
 }
 
 rule R2 {
-  description: "Manufacturer can see, update and create any watches init created"
-  participant(p): "org.watchain.users.Manufacturer"
-  operation: READ, CREATE, UPDATE
+  description: "Manufacturer can read and update any watches it manufactured"
+  participant(p): "org.watchain.firstHand.Manufacturer"
+  operation: READ, UPDATE
   resource(r): "org.watchain.firstHand.Watch"
   condition:(r.manufacturer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
+//restrict to create later
+rule R32 {
+  description: "Manufacturer create any watches it manufactured"
+  participant: "org.watchain.firstHand.Manufacturer"
+  operation: ALL
+  resource: "org.watchain.firstHand.Watch"
+  action: ALLOW
+}
+
 
 rule R25 {
   description: "Manufacturer has full access to create watch transaction"
-  participant: "org.watchain.users.Manufacturer"
+  participant: "org.watchain.firstHand.Manufacturer"
   operation: ALL
   resource: "org.watchain.firstHand.CreateWatch"
   action: ALLOW
 }
 
-//maybe better if nobody can delete watches
+//It is better if nobody can delete watches
 rule R3 {
-  description: "Manufacturer can delete watches it owns only if reports a theft"
-  participant: "org.watchain.users.Manufacturer"
-  operation: DELETE, UPDATE
-  resource(r): "org.watchain.firstHand.Watch"
-  transaction(tx): "org.watchain.firstHand.ReportTheft"
-  condition:(r.owner.getIdentifier() == p.getIdentifier())
-  action: ALLOW
+  description: "Nobody can delete watches"
+  participant: "org.watchain.firstHand.*"
+  operation: DELETE
+  resource: "org.watchain.firstHand.Watch"
+  action: DENY
 }
 
 rule R17 {
   description: "Manufacturer has full access on orders for the watch it owns"
-  participant(p): "org.watchain.users.Manufacturer"
+  participant(p): "org.watchain.firstHand.Manufacturer"
   operation: ALL
   resource(r): "org.watchain.firstHand.Order"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
@@ -82,7 +89,7 @@ rule R17 {
 
 rule R18 {
   description: "Manufacturer can mark an order when accepted"
-  participant(p): "org.watchain.users.Manufacturer"
+  participant(p): "org.watchain.firstHand.Manufacturer"
   operation: ALL
   resource(r): "org.watchain.firstHand.AcceptOrder"
   condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
@@ -91,7 +98,7 @@ rule R18 {
 
 rule R29 {
   description: "Manufacturer can mark an order when ready"
-  participant(p): "org.watchain.users.Manufacturer"
+  participant(p): "org.watchain.firstHand.Manufacturer"
   operation: ALL
   resource(r): "org.watchain.firstHand.OrderReady"
   condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
@@ -101,7 +108,7 @@ rule R29 {
 
 rule R19 {
   description: "ALL participants can report theft for the watches they own"
-  participant(p): "org.watchain.users.*"
+  participant(p): "org.watchain.firstHand.*"
   operation: ALL
   resource(r): "org.watchain.firstHand.ReportTheft"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
@@ -110,7 +117,7 @@ rule R19 {
 
 rule R20 {
   description: "All participants can update the watches they owns"
-  participant(p): "org.watchain.users.*"
+  participant(p): "org.watchain.firstHand.*"
   operation: UPDATE
   resource(r): "org.watchain.firstHand.Watch"
   condition:(r.owner.getIdentfier() == p.getIdentifier())
@@ -119,7 +126,7 @@ rule R20 {
 
 rule R21 {
   description: "All participants can recover the watches they own only if they have reported a theft"
-  participant(p): "org.watchain.users.*"
+  participant(p): "org.watchain.firstHand.*"
   operation: ALL
   resource(r): "org.watchain.firstHand.RecoverTheft"
   //transaction(tx): "org.watchain.firstHand.ReportTheft"
@@ -129,7 +136,7 @@ rule R21 {
 
 rule R12 {
   description: "Collector can see any new watch"
-  participant: "org.watchain.users.Collector"
+  participant: "org.watchain.firstHand.Collector"
   operation: READ
   resource: "org.watchain.firstHand.Watch"
   action: ALLOW
@@ -138,7 +145,7 @@ rule R12 {
 
 rule R11 {
   description: "Collector can place and see orders only for watches marked NEW "
-  participant: "org.watchain.users.Collector"
+  participant: "org.watchain.firstHand.Collector"
   operation: CREATE
   resource: "org.watchain.firstHand.Order"
   action: ALLOW
@@ -146,7 +153,7 @@ rule R11 {
 
 rule R26 {
   description: "Collector has full access over the create order transaction "
-  participant: "org.watchain.users.Collector"
+  participant: "org.watchain.firstHand.Collector"
   operation: ALL
   resource: "org.watchain.firstHand.CreateOrder"
   action: ALLOW
@@ -154,7 +161,7 @@ rule R26 {
 
 rule R15 {
   description: "Collector only see and updates his own orders"
-  participant(p): "org.watchain.users.Collector"
+  participant(p): "org.watchain.firstHand.Collector"
   operation: READ, UPDATE
   resource(r): "org.watchain.firstHand.Order"
   //transaction(tx): "org.watchain.firstHand.CreateOrder"
@@ -164,9 +171,9 @@ rule R15 {
 
 rule R16 {
   description: "Collector has full access to his own profile only"
-  participant(p): "org.watchain.users.Collector"
+  participant(p): "org.watchain.firstHand.Collector"
   operation: ALL
-  resource(r): "org.watchain.users.Collector"
+  resource(r): "org.watchain.firstHand.Collector"
   condition:(r.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
@@ -174,7 +181,7 @@ rule R16 {
 //transform order into a transaction to create orders that I can then see. To check that I order only watches that exist.
 rule R4 {
   description: "Collector can read and update watches"
-  participant: "org.watchain.users.Collector"
+  participant: "org.watchain.firstHand.Collector"
   operation: READ, UPDATE
   resource: "org.watchain.firstHand.Watch"
   action: ALLOW
@@ -182,7 +189,7 @@ rule R4 {
 
 rule R5 {
   description: "Collector, Courier and Auctioneer can read any watch on auction to better synchronize"
-  participant: "org.watchain.users.*"
+  participant: "org.watchain.firstHand.*"
   operation: READ
   resource: "org.watchain.auction.*"
   action: ALLOW
@@ -190,7 +197,7 @@ rule R5 {
 
 rule R6 {
   description: "Collector has full access over the auction of his own watches"
-  participant(p): "org.watchain.users.Collector"
+  participant(p): "org.watchain.firstHand.Collector"
   operation: ALL
   resource(r): "org.watchain.auction.WatchListing"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier()) 
@@ -199,7 +206,7 @@ rule R6 {
 
 rule R31 {
   description: "Collectors can mark an order as received and triggle the payment"
-  participant(p): "org.watchain.users.Collector"
+  participant(p): "org.watchain.firstHand.Collector"
   operation: ALL
   resource(r): "org.watchain.firstHand.Received"
   condition:(r.order.orderer.getIdentifier() == p.getIdentifier())
@@ -209,7 +216,7 @@ rule R31 {
 
 rule R8 {
   description: "Collectors can delete only watches they own if they submit the reportTheft transaction"
-  participant(p): "org.watchain.users.Collector"
+  participant(p): "org.watchain.firstHand.Collector"
   operation: DELETE
   resource(r): "org.watchain.firstHand.Watch"
   transaction(tx): "org.watchain.firstHand.ReportTheft"
@@ -220,7 +227,7 @@ rule R8 {
 
 rule R7 {
   description: "Courier has full access to contract contract"
-  participant: "org.watchain.users.Courier"
+  participant: "org.watchain.firstHand.Courier"
   operation: ALL
   resource: "org.watchain.firstHand.Contract"
   action: ALLOW
@@ -229,7 +236,7 @@ rule R7 {
 
 rule R27 {
   description: "Courier can create a delivery  contract"
-  participant: "org.watchain.users.Courier"
+  participant: "org.watchain.firstHand.Courier"
   operation: ALL
   resource: "org.watchain.firstHand.CreateContract"
   action: ALLOW
@@ -237,7 +244,7 @@ rule R27 {
 
 rule R28 {
   description: "Courier can read and update any order"
-  participant: "org.watchain.users.Courier"
+  participant: "org.watchain.firstHand.Courier"
   operation: READ, UPDATE
   resource: "org.watchain.firstHand.Order"
   action: ALLOW
@@ -245,7 +252,7 @@ rule R28 {
 
 rule R30 {
   description: "Courier can submit a delivered transaction if it signed a contract for delivery for the same order"
-  participant(p): "org.watchain.users.Courier"
+  participant(p): "org.watchain.firstHand.Courier"
   operation: ALL
   resource(r): "org.watchain.firstHand.Delivered"
   condition:(r.order.contract.courier.getIdentifier() == p.getIdentifier())

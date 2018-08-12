@@ -15,17 +15,118 @@
 /**
  * Order model for vehicle lifecycle
  */
-namespace org.watchain.firstHand 
-import org.watchain.users.*
+namespace org.watchain.firstHand
+//import org.watchain.users.*
+
+abstract participant User identified by userId {
+  o String userId
+}
+
+abstract participant Person extends User {
+  o String title optional
+  o String firstName  optional
+  o String lastName  optional
+  o String nationality optional
+  o Address address optional
+  o ContactDetails contactDetails optional
+  o BirthDetails birthDetails optional
+  o DeathDetails deathDetails optional
+  o Gender gender optional
+}
+   
+/**
+ * An abstract participant type in this business network
+ */
+abstract participant Business extends User {
+  o Address headquarters optional
+  o String companyName optional
+  o ContactDetails contactDetails optional
+  o BirthDetails foundationDate optional
+  o DeathDetails terminationDate optional
+  --> Manager[] managers optional
+}
+
+abstract participant Employee extends Person {
+  --> Business employer
+  --> Manager manager optional
+  o DateTime joiningDate optional
+  o String employmentStatus optional
+  o String department optional
+  o String jobRole optional
+}
+
+abstract participant Manager extends Employee {
+  --> Employee[] directReports optional
+}
+
+participant Manufacturer extends Business{
+  o Double availableBalance
+  o Integer stock optional
+  o Integer sold optional
+  o Integer totalProduction optional
+}
+
+participant Auctioneer extends Person {
+}
+
+participant Insurer extends Business {
+}
+
+participant Collector extends Person {
+  o Double availableBalance
+  o Double frozenBalance optional
+} 
+
+participant Courier extends Business {
+}
+
+participant Fca extends Business {
+}
+
+concept ContactDetails {
+  o String email  optional
+  o String mobilePhone  optional
+  o String homePhone optional
+  o String workPhone optional
+  o Address address optional
+} 
+
+concept BirthDetails {
+  o DateTime dateOfBirth optional
+  o String placeOfBirth optional
+}
+
+concept DeathDetails {
+  o DateTime dateOfDeath optional
+  o String placeOfDeath optional
+}
+
+concept Address {
+  o String city 
+  o String country 
+  o String locality optional
+  o String region optional
+  o String street optional
+  o String street2 optional
+  o String street3 optional
+  o String postalCode optional
+  o String postOfficeBoxNumber optional
+}
+ 
+enum Gender {
+ o MALE
+ o FEMALE
+ o OTHER
+}
 
 asset Watch identified by serialNumber {
   //the serial number possible combinations (10!) set network capacity to 3,628,800 watches
   o String serialNumber //regex=/([0-9]{10})/
   //the ref identifies uniquely a watch model with material and movement
   o String ref //regex=/((0)[1-3](ST|PL|GO))/
-  o WatchStatus status  
-  o Double lastPrice optional 
-  o Double retailPrice 
+  o WatchStatus status
+  o Double lastPrice optional
+  o Double retailPrice
   --> Manufacturer manufacturer
   --> User owner
 }
@@ -65,7 +166,7 @@ asset Order identified by orderId {
   //--> Manufacturer manufacturer  
   --> Collector orderer
   o Contract contract optional
-  o OrderStatus orderStatus
+  o OrderStatus orderStatus 
   o Boolean courierAssigned optional //TODO (LG): Unit test this
 }
 
@@ -76,7 +177,7 @@ enum OrderStatus {
   o SUBMITTED
   o ACCEPTED
   o READY
-  o ON_DELIVERY
+  o ON_DELIVERY 
   o DELIVERED
   o RECEIVED
   o PAID
@@ -97,7 +198,7 @@ event CreateOrderEvent {
  */
 
 transaction AcceptOrder {
-  o OrderStatus orderStatus default = 'ACCEPTED'
+  o OrderStatus orderStatus //default = 'ACCEPTED'
   --> Order order
 }
 event AcceptOrderEvent {
@@ -105,7 +206,7 @@ event AcceptOrderEvent {
 }
 
 transaction OrderReady {
-  o OrderStatus orderStatus default = 'READY'
+  o OrderStatus orderStatus //default = 'READY'
   --> Order order
 }
  
@@ -125,7 +226,6 @@ asset Contract identified by contractId {
 transaction CreateContract {
 o Contract contract
 }
-  
 
 transaction Delivered {
   o Courier courier
@@ -152,4 +252,10 @@ event ReportTheftEvent {
 
 transaction RecoverTheft {
   --> Watch watch
+}
+
+/**
+ * JUST FOR INITIALIZING A DEMO
+ */
+transaction Setup {
 }

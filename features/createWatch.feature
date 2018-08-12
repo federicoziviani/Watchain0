@@ -118,7 +118,7 @@ Feature: Create Watch
             | orderId | watch      | orderer | orderStatus |
             | 0       | 0000000000 | fede    | ACCEPTED    |
 
-    Scenario: Manufacturer can mark an ready for delivery 
+    Scenario: Manufacturer can mark an order ready for delivery 
         When I use the identity oris1
         And I submit the following transaction of type org.watchain.firstHand.OrderReady
             | order   | orderStatus |
@@ -129,17 +129,25 @@ Feature: Create Watch
     Scenario: Courier can create a contract that assigns him deliver an order
         When I use the identity dhl1
         And I add the following asset of type org.watchain.firstHand.Contract
-            | contractId | order | courier |
-            | 1          | 5     | dhl     |
+            | contractId | order | courier | terminated |
+            | 1          | 5     | dhl     | false      |
         And I update the following asset of type org.watchain.firstHand.Order
             | orderId | watch      | orderer | orderStatus | courierAssigned |
             | 5       | 0000000006 | fede    | ON_DELIVERY | true            |
         Then I should have the following asset of type org.watchain.firstHand.Contract
-            | contractId | order | courier |
-            | 1          | 5     | dhl     |
+            | contractId | order | courier | terminated |
+            | 1          | 5     | dhl     | false      |
         And I should have the following asset of type org.watchain.firstHand.Order
             | orderId | watch      | orderer | orderStatus | courierAssigned |
             | 5       | 0000000006 | fede    | ON_DELIVERY | true            |
+    Scenario: The courier records a transaction when the order is delivered
+        When I use the identity dhl1
+        And I submit the following transaction of type org.watchain.firstHand.Delivered 
+            | order |
+            | 6     |
+        Then I should have the following asset of type org.watchain.firstHand.Order
+            | orderId | watch      | orderer | orderStatus |
+            | 6       | 0000000007 | fede    | DELIVERED   |
 
         
 

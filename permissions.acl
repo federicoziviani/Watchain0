@@ -233,6 +233,14 @@ rule R7 {
   action: ALLOW
 }
 
+rule R33 {
+  description: "Courier can submit delivered transaction"
+  participant: "org.watchain.firstHand.Courier"
+  operation: ALL
+  resource: "org.watchain.firstHand.Delivered"
+  action: ALLOW
+}
+
 
 rule R27 {
   description: "Courier can create a delivery  contract"

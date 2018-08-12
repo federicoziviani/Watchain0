@@ -165,6 +165,7 @@ asset Order identified by orderId {
   --> Watch watch
   //--> Manufacturer manufacturer  
   --> Collector orderer
+  --> Courier courier optional
   o Contract contract optional
   o OrderStatus orderStatus 
   o Boolean courierAssigned optional //TODO (LG): Unit test this
@@ -219,6 +220,7 @@ event OrderReadyEvent {
  */
 asset Contract identified by contractId {
   o String contractId
+  o Boolean terminated
   --> Order order 
   --> Courier courier
 }
@@ -228,11 +230,11 @@ o Contract contract
 }
 
 transaction Delivered {
-  o Courier courier
+  //o Courier courier
   --> Order order
 } 
 
-event DelivedEvent {
+event DeliveredEvent {
     o String message
     --> Order order
 }

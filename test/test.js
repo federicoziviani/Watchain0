@@ -528,7 +528,7 @@ describe('Create Watch', () => {
         order0.orderStatus.should.equal('ACCEPTED');
     });
 
-    it('Manufacturer can mark an ready for delivery', async() =>{
+    it('Manufacturer can mark an order ready for delivery', async() =>{
         // Use the identity for the manufacturer Oris.
         await useIdentity(orisCardName);
 
@@ -554,6 +554,7 @@ describe('Create Watch', () => {
         const contract1 = factory.newResource(namespace, 'Contract', '1');
         contract1.order = factory.newRelationship(namespace, 'Order', '5');
         contract1.courier = factory.newRelationship(namespace, 'Courier', 'dhl');
+        contract1.terminated = false;
 
         // save the new contract asset.
         const contractRegistry = await businessNetworkConnection.getAssetRegistry(contractNS);
@@ -564,6 +565,7 @@ describe('Create Watch', () => {
         order5.watch = factory.newRelationship(namespace, 'Watch', '0000000006');
         order5.orderer = factory.newRelationship(namespace, 'Collector', 'fede' );
         order5.orderStatus = 'ON_DELIVERY';
+        order5.courier = factory.newRelationship(namespace, 'Courier', 'dhl' );
         order5.courierAssigned = true;
 
         //save the order status update
@@ -581,7 +583,27 @@ describe('Create Watch', () => {
         //validate the order asset
         order5.orderStatus.should.equal('ON_DELIVERY');
         order5.courierAssigned.should.equal(true);
+        order5.courier.getFullyQualifiedIdentifier().should.equal(participantCou + '#dhl');
 
+    });
+
+    it('The courier records a transaction when the order is delivered', async() =>{
+        //use identity for the courier dhl.
+        await useIdentity(dhlCardName);
+
+        //submit delivered transaction to update the order
+        const transaction = factory.newTransaction(namespace, 'Delivered');
+        transaction.order = factory.newRelationship(namespace, 'Order', '6');
+        //transaction.orderStatus = 'DELIVERED';
+        //transaction.order.courier = transaction.orderStatus;
+        await businessNetworkConnection.submitTransaction(transaction);
+ 
+        // Get the updated order asset.
+        const orderRegistry = await businessNetworkConnection.getAssetRegistry(orderNS);
+        const order6 = await orderRegistry.get('6');
+
+        //validate the asset
+        order6.orderStatus.should.equal('DELIVERED');
     });
 
    /**  it('Collector can not order a watch that have already been ordered', async() =>{

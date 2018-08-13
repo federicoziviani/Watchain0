@@ -19,8 +19,6 @@ namespace org.watchain.auction
 //import org.watchain.users.*
 import org.watchain.firstHand.*
 
- 
-
 enum ListingState {
   o FOR_SALE
   o RESERVE_NOT_MET
@@ -34,6 +32,18 @@ asset WatchListing identified by listingId {
   o ListingState state
   o Offer[] offers optional
   --> Watch watch
+}
+
+asset Watch identified by serialNumber {
+  //the serial number possible combinations (10!) set network capacity to 3,628,800 watches
+  o String serialNumber //regex=/([0-9]{10})/
+  //the ref identifies uniquely a watch model with material and movement
+  o String ref //regex=/((0)[1-3](ST|PL|GO))/
+  o WatchStatus status
+  o Double lastPrice optional
+  o Double retailPrice
+  --> Manufacturer manufacturer
+  --> User owner
 }
 
 transaction Offer {

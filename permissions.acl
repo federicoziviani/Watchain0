@@ -12,95 +12,103 @@
  * limitations under the License.
  */
 rule R14{
-  description: "Fca oversights every transaction"
-  participant: "org.watchain.firstHand.Fca"
-  operation: READ
+  description: "Fca oversights every participant"
+  participant: "org.watchain.watchain.Fca"
+  operation: READ, UPDATE
   resource: "org.watchain.**"
   action:ALLOW
 }
 
 rule R22{
-  description: "Insurer oversights every transaction in firstHand"
-  participant: "org.watchain.firstHand.Insurer"
+  description: "Insurer oversights every transaction in watchain"
+  participant: "org.watchain.watchain.Insurer"
   operation: READ
-  resource: "org.watchain.firstHand.*"
+  resource: "org.watchain.watchain.*"
   action:ALLOW
 }
 
 rule R10{
-  description: "Every user can see the business participants"
-  participant: "org.watchain.firstHand.*" 
+  description: "Every participant can read everything "
+  participant: "org.watchain.watchain.*" 
   operation: READ
-  resource: "org.watchain.firstHand.Business"
+  resource: "org.watchain.watchain.*"
   action:ALLOW
 }
 
 rule R9{
-  description: "Every user can perform oversight on every transaction on auction"
-  participant: "org.watchain.firstHand.*"
+  description: "Every user can perform oversight on every watch on auction"
+  participant: "org.watchain.watchain.*"
   operation: READ
-  resource: "org.watchain.auction.*"
+  resource: "org.watchain.watchain.WatchListing"
   action:ALLOW
 }
 
 rule R2 {
   description: "Manufacturer can read and update any watches it manufactured"
-  participant(p): "org.watchain.firstHand.Manufacturer"
+  participant(p): "org.watchain.watchain.Manufacturer"
   operation: READ, UPDATE
-  resource(r): "org.watchain.firstHand.Watch"
+  resource(r): "org.watchain.watchain.Watch"
   condition:(r.manufacturer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 //restrict to create later
 rule R32 {
   description: "Manufacturer create any watches it manufactured"
-  participant: "org.watchain.firstHand.Manufacturer"
+  participant: "org.watchain.watchain.Manufacturer"
+  operation: CREATE, UPDATE
+  resource: "org.watchain.watchain.Watch"
+  action: ALLOW
+}
+
+rule R34 {
+  description: "Manufacturer has full access to its profile"
+  participant: "org.watchain.watchain.Manufacturer"
   operation: ALL
-  resource: "org.watchain.firstHand.Watch"
+  resource: "org.watchain.watchain.Manufacturer"
   action: ALLOW
 }
 
 
 rule R25 {
   description: "Manufacturer has full access to create watch transaction"
-  participant: "org.watchain.firstHand.Manufacturer"
+  participant: "org.watchain.watchain.Manufacturer"
   operation: ALL
-  resource: "org.watchain.firstHand.CreateWatch"
+  resource: "org.watchain.watchain.CreateWatch"
   action: ALLOW
 }
 
 //It is better if nobody can delete watches
 rule R3 {
   description: "Nobody can delete watches"
-  participant: "org.watchain.firstHand.*"
+  participant: "org.watchain.watchain.*"
   operation: DELETE
-  resource: "org.watchain.firstHand.Watch"
+  resource: "org.watchain.watchain.Watch"
   action: DENY
 }
 
 rule R17 {
   description: "Manufacturer has full access on orders for the watch it owns"
-  participant(p): "org.watchain.firstHand.Manufacturer"
+  participant(p): "org.watchain.watchain.Manufacturer"
   operation: ALL
-  resource(r): "org.watchain.firstHand.Order"
+  resource(r): "org.watchain.watchain.Order"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R18 {
   description: "Manufacturer can mark an order when accepted"
-  participant(p): "org.watchain.firstHand.Manufacturer"
+  participant(p): "org.watchain.watchain.Manufacturer"
   operation: ALL
-  resource(r): "org.watchain.firstHand.AcceptOrder"
+  resource(r): "org.watchain.watchain.AcceptOrder"
   condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R29 {
   description: "Manufacturer can mark an order when ready"
-  participant(p): "org.watchain.firstHand.Manufacturer"
+  participant(p): "org.watchain.watchain.Manufacturer"
   operation: ALL
-  resource(r): "org.watchain.firstHand.OrderReady"
+  resource(r): "org.watchain.watchain.OrderReady"
   condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
@@ -108,72 +116,72 @@ rule R29 {
 
 rule R19 {
   description: "ALL participants can report theft for the watches they own"
-  participant(p): "org.watchain.firstHand.*"
+  participant(p): "org.watchain.watchain.*"
   operation: ALL
-  resource(r): "org.watchain.firstHand.ReportTheft"
+  resource(r): "org.watchain.watchain.ReportTheft"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R20 {
   description: "All participants can update the watches they owns"
-  participant(p): "org.watchain.firstHand.*"
+  participant(p): "org.watchain.watchain.*"
   operation: UPDATE
-  resource(r): "org.watchain.firstHand.Watch"
+  resource(r): "org.watchain.watchain.Watch"
   condition:(r.owner.getIdentfier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R21 {
   description: "All participants can recover the watches they own only if they have reported a theft"
-  participant(p): "org.watchain.firstHand.*"
+  participant(p): "org.watchain.watchain.*"
   operation: ALL
-  resource(r): "org.watchain.firstHand.RecoverTheft"
-  //transaction(tx): "org.watchain.firstHand.ReportTheft"
+  resource(r): "org.watchain.watchain.RecoverTheft"
+  //transaction(tx): "org.watchain.watchain.ReportTheft"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R12 {
   description: "Collector can see any new watch"
-  participant: "org.watchain.firstHand.Collector"
+  participant: "org.watchain.watchain.Collector"
   operation: READ
-  resource: "org.watchain.firstHand.Watch"
+  resource: "org.watchain.watchain.Watch"
   action: ALLOW
 }
 
 
 rule R11 {
   description: "Collector can place and see orders only for watches marked NEW "
-  participant: "org.watchain.firstHand.Collector"
+  participant: "org.watchain.watchain.Collector"
   operation: CREATE
-  resource: "org.watchain.firstHand.Order"
+  resource: "org.watchain.watchain.Order"
   action: ALLOW
 }
 
 rule R26 {
   description: "Collector has full access over the create order transaction "
-  participant: "org.watchain.firstHand.Collector"
+  participant: "org.watchain.watchain.Collector"
   operation: ALL
-  resource: "org.watchain.firstHand.CreateOrder"
+  resource: "org.watchain.watchain.CreateOrder"
   action: ALLOW
 }
 
 rule R15 {
   description: "Collector only see and updates his own orders"
-  participant(p): "org.watchain.firstHand.Collector"
+  participant(p): "org.watchain.watchain.Collector"
   operation: READ, UPDATE
-  resource(r): "org.watchain.firstHand.Order"
-  //transaction(tx): "org.watchain.firstHand.CreateOrder"
+  resource(r): "org.watchain.watchain.Order"
+  //transaction(tx): "org.watchain.watchain.CreateOrder"
   condition:(r.orderer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R16 {
   description: "Collector has full access to his own profile only"
-  participant(p): "org.watchain.firstHand.Collector"
+  participant(p): "org.watchain.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.firstHand.Collector"
+  resource(r): "org.watchain.watchain.Collector"
   condition:(r.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
@@ -181,34 +189,34 @@ rule R16 {
 //transform order into a transaction to create orders that I can then see. To check that I order only watches that exist.
 rule R4 {
   description: "Collector can read and update watches"
-  participant: "org.watchain.firstHand.Collector"
+  participant: "org.watchain.watchain.Collector"
   operation: READ, UPDATE
-  resource: "org.watchain.firstHand.Watch"
+  resource: "org.watchain.watchain.Watch"
   action: ALLOW
 }
 
 rule R5 {
-  description: "Collector, Courier and Auctioneer can read any watch on auction to better synchronize"
-  participant: "org.watchain.firstHand.*"
+  description: "Every participant can read any watch on auction"
+  participant: "org.watchain.watchain.*"
   operation: READ
-  resource: "org.watchain.auction.*"
+  resource: "org.watchain.watchain.WatchListing"
   action: ALLOW
 }
 
 rule R6 {
   description: "Collector has full access over the auction of his own watches"
-  participant(p): "org.watchain.firstHand.Collector"
+  participant(p): "org.watchain.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.auction.WatchListing"
+  resource(r): "org.watchain.watchain.WatchListing"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier()) 
   action: ALLOW
 }
 
 rule R31 {
   description: "Collectors can mark an order as received and triggle the payment"
-  participant(p): "org.watchain.firstHand.Collector"
+  participant(p): "org.watchain.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.firstHand.Received"
+  resource(r): "org.watchain.watchain.Received"
   condition:(r.order.orderer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
@@ -216,10 +224,10 @@ rule R31 {
 
 rule R8 {
   description: "Collectors can delete only watches they own if they submit the reportTheft transaction"
-  participant(p): "org.watchain.firstHand.Collector"
+  participant(p): "org.watchain.watchain.Collector"
   operation: DELETE
-  resource(r): "org.watchain.firstHand.Watch"
-  transaction(tx): "org.watchain.firstHand.ReportTheft"
+  resource(r): "org.watchain.watchain.Watch"
+  transaction(tx): "org.watchain.watchain.ReportTheft"
   condition:(r.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
@@ -227,45 +235,78 @@ rule R8 {
 
 rule R7 {
   description: "Courier has full access to contract contract"
-  participant: "org.watchain.firstHand.Courier"
+  participant: "org.watchain.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.firstHand.Contract"
+  resource: "org.watchain.watchain.Contract"
   action: ALLOW
 }
 
 rule R33 {
   description: "Courier can submit delivered transaction"
-  participant: "org.watchain.firstHand.Courier"
+  participant: "org.watchain.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.firstHand.Delivered"
+  resource: "org.watchain.watchain.Delivered"
   action: ALLOW
 }
 
 
 rule R27 {
   description: "Courier can create a delivery  contract"
-  participant: "org.watchain.firstHand.Courier"
+  participant: "org.watchain.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.firstHand.CreateContract"
+  resource: "org.watchain.watchain.CreateContract"
   action: ALLOW
 }
 
 rule R28 {
   description: "Courier can read and update any order"
-  participant: "org.watchain.firstHand.Courier"
+  participant: "org.watchain.watchain.Courier"
   operation: READ, UPDATE
-  resource: "org.watchain.firstHand.Order"
+  resource: "org.watchain.watchain.Order"
   action: ALLOW
 }
 
 rule R30 {
   description: "Courier can submit a delivered transaction if it signed a contract for delivery for the same order"
-  participant(p): "org.watchain.firstHand.Courier"
+  participant(p): "org.watchain.watchain.Courier"
   operation: ALL
-  resource(r): "org.watchain.firstHand.Delivered"
+  resource(r): "org.watchain.watchain.Delivered"
   condition:(r.order.contract.courier.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
+
+rule R35 {
+  description: "Auctioneer can submit the terminate bidding transaction"
+  participant: "org.watchain.watchain.Auctioneer"
+  operation: CREATE
+  resource: "org.watchain.watchain.TerminateBidding"
+  action: ALLOW
+}
+
+rule R36 {
+  description: "Auctioneer can update a listing"
+  participant: "org.watchain.watchain.Auctioneer"
+  operation: UPDATE
+  resource: "org.watchain.watchain.WatchListing"
+  action: ALLOW
+}
+
+rule R37 {
+  description: "Auctioneer can update the status of a watch when its auction is terminated"
+  participant: "org.watchain.watchain.Auctioneer"
+  operation: UPDATE
+  resource: "org.watchain.watchain.Watch"
+  action: ALLOW
+}
+
+rule R38 {
+  description: "Auctioneer can update a participant who made a watch listing"
+  participant: "org.watchain.watchain.Auctioneer"
+  operation: UPDATE
+  resource: "org.watchain.watchain.Collector"
+  action: ALLOW
+}
+
 
  // ass rule: "Courier in the contract has access to the order if it operates in the country of collector"
 

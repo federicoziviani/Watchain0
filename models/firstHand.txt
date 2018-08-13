@@ -256,8 +256,28 @@ transaction RecoverTheft {
   --> Watch watch
 }
 
-/**
- * JUST FOR INITIALIZING A DEMO
- */
-transaction Setup {
+enum ListingState {
+  o FOR_SALE
+  o RESERVE_NOT_MET
+  o SOLD
+} 
+
+asset WatchListing identified by listingId {
+  o String listingId
+  o Double reservePrice
+  o String description
+  o ListingState state
+  o Offer[] offers optional
+  --> Watch watch
+}
+
+transaction Offer {
+  o Double bidPrice
+  --> WatchListing listing
+  --> Collector collector
+}
+     
+transaction TerminateBidding {
+  --> WatchListing listing
+  o Double lastPrice
 }

@@ -24,23 +24,22 @@ chai.should();
 chai.use(require('chai-as-promised'));
 
 //const namespaceUsers = 'org.watchain.users';
-const namespace = 'org.watchain.firstHand';
+const namespace = 'org.watchain.watchain';
+//const namespaceAuction = 'org.watchain.auction';
 const assetType = 'Watch';
 const orderType = 'Order';
 const contractType = 'Contract';
+const listingType = 'WatchListing';
 const orderNS = namespace + '.' + orderType;
 const assetNS = namespace + '.' + assetType;
 const contractNS = namespace + '.' + contractType;
+const listingNS = namespace + '.' + listingType; 
 const participantM = namespace + '.' + 'Manufacturer';
 const participantCol = namespace + '.' + 'Collector';
 const participantCou = namespace + '.' + 'Courier';
 const participantI = namespace + '.' + 'Insurer';
 const participantA = namespace + '.' + 'Auctioneer';
 const participantF = namespace + '.' + 'Fca';
-//const participantType3 = 'Courier';
-//const participantType4 = 'Auctioneer';
-//const participantType5 = 'Insurer';
-//const participantM = namespace + '.' + participantM;
 
 describe('Create Watch', () => {
     // In-memory card store for testing so cards are not persisted to the file system
@@ -146,15 +145,25 @@ describe('Create Watch', () => {
         const manufacturerRegistry = await businessNetworkConnection.getParticipantRegistry(participantM);
         // Create the participants.
         const oris = factory.newResource(namespace, 'Manufacturer', 'oris');
-        oris.availableBalance = 0.0;
+        oris.availableBalance = 500.0;
+        oris.stock = 10;
+        oris.sold = 1;
+        oris.totalProduction = 11;
         await manufacturerRegistry.add(oris);
 
         //get the participant registry for collector
         const collectorRegistry = await businessNetworkConnection.getParticipantRegistry(participantCol);
-        // Create the participants.
+        // Create the participant fede.
         const fede = factory.newResource(namespace, 'Collector', 'fede');
         fede.availableBalance = 9000.0;
         await collectorRegistry.add(fede);
+
+        //get the participant registry for collector
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        // Create the participant john.
+        const john = factory.newResource(namespace, 'Collector', 'john');
+        john.availableBalance = 0.0;
+        await collectorRegistry.add(john);
 
         //get the participant registry for courier
         const courierRegistry = await businessNetworkConnection.getParticipantRegistry(participantCou);
@@ -304,6 +313,30 @@ describe('Create Watch', () => {
         // Add the asset.
         await watchRegistry.add(watch10);
 
+        //get asset registry for watches
+        await businessNetworkConnection.getAssetRegistry(assetNS);
+        //Create the assets owned by manufacturer.
+        const watch12 = factory.newResource(namespace, assetType, '0000000012');
+        watch12.owner = factory.newRelationship(namespace, 'Collector' , 'fede');
+        watch12.ref = '01GO';
+        watch12.status = 'PRIVATE';
+        watch12.retailPrice = 500;
+        watch12.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
+        // Add the asset.
+        await watchRegistry.add(watch12);
+
+        //get asset registry for watches
+        await businessNetworkConnection.getAssetRegistry(assetNS);
+        //Create the assets owned by manufacturer.
+        const watch13 = factory.newResource(namespace, assetType, '0000000013');
+        watch13.owner = factory.newRelationship(namespace, 'Collector' , 'fede');
+        watch13.ref = '01PL';
+        watch13.status = 'PRIVATE';
+        watch13.retailPrice = 500;
+        watch13.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
+        // Add the asset.
+        await watchRegistry.add(watch13);
+
 
         //get asset registry for orders
         const orderRegistry = await businessNetworkConnection.getAssetRegistry(orderNS);
@@ -375,6 +408,16 @@ describe('Create Watch', () => {
         // Add the asset.
         await orderRegistry.add(order9);
 
+        //get asset registry for listings
+        const listingRegistry = await businessNetworkConnection.getAssetRegistry(listingNS);
+        //Create the assets owned by manufacturer.
+        const listing02 = factory.newResource(namespace, listingType, '02');
+        listing02.reservePrice = 1000;
+        listing02.description = 'a test auction for my watch';
+        listing02.state = 'FOR_SALE';
+        listing02.watch = factory.newRelationship(namespace, 'Watch', '0000000013');
+        // Add the asset.
+        await listingRegistry.add(listing02);
 
 
         // Issue the identitity for manufacturer
@@ -411,8 +454,43 @@ describe('Create Watch', () => {
         await businessNetworkConnection.connect(cardName);
         factory = businessNetworkConnection.getBusinessNetwork().getFactory();
     }
+
+    it('Insurer can read all of the watches', async () => {
+        // Use the identity for Allianz.
+        await useIdentity(allianzCardName);
+
+        const watchRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
+        //const assets = await assetRegistry.getAll();
+        await watchRegistry.getAll();
+
+        // Validate the assets.
+        //assets.should.have.lengthOf(2);
+        //const asset1 = assets[0];
+        //asset1.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#alice@email.com');
+        //asset1.value.should.equal('10');
+        //const asset2 = assets[1];
+        //asset2.owner.getFullyQualifiedIdentifier().should.equal(participantNS + '#bob@email.com');
+        //asset2.value.should.equal('20');
+    });
+
+    it('FCA can read all of the participants', async () => {
+        // Use the identity for FCA.
+        await useIdentity(fcaCardName);
+        const mRegistry = await businessNetworkConnection.getParticipantRegistry(participantM);
+        await mRegistry.getAll();
+        const ColRegistry = await businessNetworkConnection.getParticipantRegistry(participantCol);
+        await ColRegistry.getAll();
+        const CouRegistry = await businessNetworkConnection.getParticipantRegistry(participantCou);
+        await CouRegistry.getAll();
+        const IRegistry = await businessNetworkConnection.getParticipantRegistry(participantI);
+        await IRegistry.getAll();
+        const ARegistry = await businessNetworkConnection.getParticipantRegistry(participantA);
+        await ARegistry.getAll();
+        const FRegistry = await businessNetworkConnection.getParticipantRegistry(participantF);
+        await FRegistry.getAll();
+    });
     
-    it('Manufacturer can add assets that he owns', async () => {
+    it('Manufacturer can create new watches that he owns', async () => {
         // Use the identity for the manufacturer Oris.
         await useIdentity(orisCardName);
 
@@ -424,18 +502,53 @@ describe('Create Watch', () => {
         watch2.retailPrice = 500;
         watch2.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
 
-
-        // Add the asset, then get the asset.
+        // Add the new watch asset
         const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
         await assetRegistry.add(watch2);
 
-        // Validate the asset.
+        //update the manufacturer 
+        const oris = factory.newResource(namespace, 'Manufacturer', 'oris');
+        oris.availableBalance = 500.0;
+        oris.stock = 111;
+        oris.sold = 1;
+        oris.totalProduction = 12;
+
+        //save the manufacturer updates
+        const participantRegistry = await businessNetworkConnection.getParticipantRegistry(participantM);
+        await participantRegistry.update(oris);
+
+        //get the watch registry
+        await businessNetworkConnection.getAssetRegistry(assetNS);
+        await assetRegistry.get('0000000002');
+
+        //get the manufacturer registry
+        await businessNetworkConnection.getParticipantRegistry(participantM);
+        await participantRegistry.get('oris');
+
+        // Validate the nwely created watch asset.
         watch2 = await assetRegistry.get('0000000002');
         watch2.owner.getFullyQualifiedIdentifier().should.equal(participantM + '#oris');
         watch2.ref.should.equal('01ST');
         watch2.status.should.equal('NEW');
         watch2.retailPrice.should.equal(500);
         watch2.manufacturer.getFullyQualifiedIdentifier().should.equal(participantM + '#oris');
+    });
+
+    it('Collector can not create new watches', async () =>{
+        //use identity for the collector Fede.
+        await useIdentity(fedeCardName);
+
+         // Create the asset.
+         let watch11 = factory.newResource(namespace, assetType, '0000000011');
+         watch11.owner = factory.newRelationship(namespace, 'Manufacturer', 'oris');
+         watch11.ref = '01ST';
+         watch11.status = 'NEW';
+         watch11.retailPrice = 500;
+         watch11.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
+ 
+         // Add the asset, then get the asset.
+         const assetRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
+         await assetRegistry.add(watch11).should.be.rejectedWith(/does not have .* access to resource/);
     });
 
     it('Collector can order a new watch', async () =>{
@@ -486,28 +599,6 @@ describe('Create Watch', () => {
         await collectorRegistry.get('fede');
 
     });
-
-    /**it('Collector can submit a create order transaction', async() =>{
-        // Use the identity for the manufacturer Oris.
-        await useIdentity(fedeCardName);
-
-        // Submit the transaction.
-        const transaction = factory.newTransaction(namespace, 'CreateOrder');
-        //let order3 = transaction.order;
-        transaction.order = factory.newResource(namespace, 'Order', '3' );
-        transaction.order.watch = factory.newRelationship(namespace, 'Watch', '0000000003');
-        transaction.order.orderer = factory.newRelationship(namespace, 'Collector', 'fede' );
-        transaction.order.orderStatus = 'SUBMITTED';
-        //transaction.order.orderStatus = transaction.orderStatus;
-        await businessNetworkConnection.submitTransaction(transaction);
- 
-        // Get the asset.
-        const orderRegistry = await businessNetworkConnection.getAssetRegistry(orderNS);
-        await orderRegistry.get('3');
-
-        //validate the asset
-        //order3.orderStatus.should.equal('SUBMITTED');
-    });*/
 
     it('Manufacturer can accept an order', async() =>{
         // Use the identity for the manufacturer Oris.
@@ -604,6 +695,96 @@ describe('Create Watch', () => {
 
         //validate the asset
         order6.orderStatus.should.equal('DELIVERED');
+    });
+
+    it('Collector can create a Watch Listing asset for a watch he/she owns', async() =>{
+        //use identity for the collector Fede.
+        await useIdentity(fedeCardName);
+       
+        const listing01 = factory.newResource(namespace, 'WatchListing', '01');
+        listing01.reservePrice = 1000;
+        listing01.description = 'a new auction for my watch';
+        listing01.state = 'FOR_SALE';
+        listing01.watch = factory.newRelationship(namespace, 'Watch', '0000000012');
+
+        //save the listing
+        const listingRegistry = await businessNetworkConnection.getAssetRegistry(listingNS);
+        await listingRegistry.add(listing01);
+
+        //get the listing
+        await businessNetworkConnection.getAssetRegistry(listingNS);
+        await listingRegistry.get('01');
+    });
+
+    it('Auctioneer can terminate the bidding for an auction', async() =>{
+        //use identity for the collector Fede.
+        await useIdentity(sothebysCardName);
+        
+        //Create the assets owned by manufacturer.
+        const listing02 = factory.newResource(namespace, listingType, '02');
+        listing02.reservePrice = 1000;
+        listing02.description = 'a test auction for my watch';
+        listing02.state = 'SOLD';
+        listing02.watch = factory.newRelationship(namespace, 'Watch', '0000000013');
+
+        //Save the updates to the Listing asset.
+        const listingRegistry = await businessNetworkConnection.getAssetRegistry(listingNS);
+        await listingRegistry.update(listing02);
+
+        //update the watch status
+        let watch13 = factory.newResource(namespace, 'Watch', '0000000001');
+        watch13.owner = factory.newRelationship(namespace, 'Collector', 'fede');
+        watch13.ref = '01PL';
+        watch13.latestPrice = 3780.0;
+        watch13.retailPrice = 500;
+        watch13.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
+        watch13.status = 'PRIVATE';
+        //save the watch status update
+        const watchRegistry = await businessNetworkConnection.getAssetRegistry(assetNS);
+        await watchRegistry.update(watch13);
+
+        //update the buyer balance
+        const collectorRegistry = await businessNetworkConnection.getParticipantRegistry(participantCol);
+        const fede = factory.newResource(namespace, 'Collector', 'fede');
+        fede.availableBalance = 5220.0 ;
+        //save the buyer balance update
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        await collectorRegistry.update(fede);
+
+        //update the seller balance
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        const john = factory.newResource(namespace, 'Collector', 'john');
+        john.availableBalance = 3780.0;
+        //save the buyer balance update
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        await collectorRegistry.update(john);
+
+
+        // Get the WatchListing asset.
+        await businessNetworkConnection.getAssetRegistry(listingNS);
+        await listingRegistry.get('02');
+
+        //get the updated buyer balance
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        await collectorRegistry.get('fede');
+
+        //get the updated seller balance
+        await businessNetworkConnection.getParticipantRegistry(participantCol);
+        await collectorRegistry.get('john');
+
+       // o String listingId
+       // o Double reservePrice
+       // o String description
+       // o ListingState state
+        //o Offer[] offers optional
+       // --> Watch watch
+
+        // Validate the watch listing
+        listing02.state.should.equal('SOLD');
+        //validate the collectors balances
+        fede.availableBalance.should.equal(5220.0);
+        john.availableBalance.should.equal(3780.0);
+
     });
 
    /**  it('Collector can not order a watch that have already been ordered', async() =>{

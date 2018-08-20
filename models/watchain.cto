@@ -15,7 +15,7 @@
 /**
  * Order model for vehicle lifecycle
  */
-namespace org.watchain.watchain
+namespace org.interwatch.watchain
 
 /**
  * Resources from users namespace 
@@ -63,9 +63,9 @@ abstract participant Manager extends Employee {
 
 participant Manufacturer extends Business{
   o Double availableBalance
-  o Integer stock optional
-  o Integer sold optional
-  o Integer totalProduction optional
+  o Integer stock default = 0
+  o Integer sold default = 0
+  o Integer totalProduction default = 0
 }
 
 participant Auctioneer extends Person {
@@ -131,7 +131,7 @@ asset Watch identified by serialNumber {
   //the ref identifies uniquely a watch model with material and movement
   o String ref //regex=/((0)[1-3](ST|PL|GO))/
   o WatchStatus status
-  o Double latestPrice optional
+  o Double lastPrice optional
   o Double retailPrice
   --> Manufacturer manufacturer
   --> User owner
@@ -231,7 +231,7 @@ asset Contract identified by contractId {
   --> Courier courier
 }
 
-transaction CreateContract {
+transaction DeliveryContract {
 o Contract contract
 }
 
@@ -276,9 +276,13 @@ asset WatchListing identified by listingId {
   o String listingId
   o Double reservePrice
   o String description
-  o ListingState state
+  o ListingState state default = 'FOR_SALE'
   o Offer[] offers optional
   --> Watch watch
+}
+
+transaction MakeListing {
+  o WatchListing listing
 }
 
 transaction Offer {
@@ -289,5 +293,5 @@ transaction Offer {
      
 transaction TerminateBidding {
   --> WatchListing listing
-  o Double lastPrice
+  o Double lastPrice optional
 }

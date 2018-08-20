@@ -24,8 +24,8 @@ chai.should();
 chai.use(require('chai-as-promised'));
 
 //const namespaceUsers = 'org.watchain.users';
-const namespace = 'org.watchain.watchain';
-//const namespaceAuction = 'org.watchain.auction';
+const namespace = 'org.interwatch.watchain';
+//const namespaceAuction = 'org.interwatch.auction';
 const assetType = 'Watch';
 const orderType = 'Order';
 const contractType = 'Contract';
@@ -735,7 +735,7 @@ describe('Create Watch', () => {
         let watch13 = factory.newResource(namespace, 'Watch', '0000000001');
         watch13.owner = factory.newRelationship(namespace, 'Collector', 'fede');
         watch13.ref = '01PL';
-        watch13.latestPrice = 3780.0;
+        watch13.lastPrice = 3780.0;
         watch13.retailPrice = 500;
         watch13.manufacturer = factory.newRelationship(namespace, 'Manufacturer', 'oris');
         watch13.status = 'PRIVATE';
@@ -772,15 +772,9 @@ describe('Create Watch', () => {
         await businessNetworkConnection.getParticipantRegistry(participantCol);
         await collectorRegistry.get('john');
 
-       // o String listingId
-       // o Double reservePrice
-       // o String description
-       // o ListingState state
-        //o Offer[] offers optional
-       // --> Watch watch
-
         // Validate the watch listing
         listing02.state.should.equal('SOLD');
+
         //validate the collectors balances
         fede.availableBalance.should.equal(5220.0);
         john.availableBalance.should.equal(3780.0);
@@ -790,6 +784,17 @@ describe('Create Watch', () => {
    /**  it('Collector can not order a watch that have already been ordered', async() =>{
         //use identity for the collector Fede.
         await useIdentity(fedeCardName);
+
+        //submit delivered transaction to update the order
+        const transaction = factory.newTransaction(namespace, 'CreateOrder');
+        transaction.order = factory.newRelationship(namespace, 'Order', '6');
+        //transaction.orderStatus = 'DELIVERED';
+        //transaction.order.courier = transaction.orderStatus;
+        await businessNetworkConnection.submitTransaction(transaction);
+ 
+        // Get the updated order asset.
+        const orderRegistry = await businessNetworkConnection.getAssetRegistry(orderNS);
+        const order6 = await orderRegistry.get('6');
 
         //create the order asset
         let order2 = factory.newResource(namespace, 'Order', '1' );

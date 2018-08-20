@@ -11,305 +11,277 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rule R14{
-  description: "Fca oversights every participant"
-  participant: "org.watchain.watchain.Fca"
-  operation: READ, UPDATE
-  resource: "org.watchain.**"
-  action:ALLOW
-}
-
-rule R22{
-  description: "Insurer oversights every transaction in watchain"
-  participant: "org.watchain.watchain.Insurer"
-  operation: READ
-  resource: "org.watchain.watchain.*"
-  action:ALLOW
-}
-
-rule R10{
-  description: "Every participant can read everything "
-  participant: "org.watchain.watchain.*" 
-  operation: READ
-  resource: "org.watchain.watchain.*"
-  action:ALLOW
-}
-
-rule R9{
-  description: "Every user can perform oversight on every watch on auction"
-  participant: "org.watchain.watchain.*"
-  operation: READ
-  resource: "org.watchain.watchain.WatchListing"
-  action:ALLOW
-}
-
-rule R2 {
-  description: "Manufacturer can read and update any watches it manufactured"
-  participant(p): "org.watchain.watchain.Manufacturer"
-  operation: READ, UPDATE
-  resource(r): "org.watchain.watchain.Watch"
-  condition:(r.manufacturer.getIdentifier() == p.getIdentifier())
-  action: ALLOW
-}
-//restrict to create later
-rule R32 {
-  description: "Manufacturer create any watches it manufactured"
-  participant: "org.watchain.watchain.Manufacturer"
-  operation: CREATE, UPDATE
-  resource: "org.watchain.watchain.Watch"
-  action: ALLOW
-}
-
-rule R34 {
-  description: "Manufacturer has full access to its profile"
-  participant: "org.watchain.watchain.Manufacturer"
-  operation: ALL
-  resource: "org.watchain.watchain.Manufacturer"
-  action: ALLOW
-}
-
-
-rule R25 {
-  description: "Manufacturer has full access to create watch transaction"
-  participant: "org.watchain.watchain.Manufacturer"
-  operation: ALL
-  resource: "org.watchain.watchain.CreateWatch"
-  action: ALLOW
-}
 
 //It is better if nobody can delete watches
-rule R3 {
+rule R1 {
   description: "Nobody can delete watches"
-  participant: "org.watchain.watchain.*"
+  participant: "org.interwatch.watchain.*"
   operation: DELETE
-  resource: "org.watchain.watchain.Watch"
+  resource: "org.interwatch.watchain.Watch"
   action: DENY
 }
 
-rule R17 {
-  description: "Manufacturer has full access on orders for the watch it owns"
-  participant(p): "org.watchain.watchain.Manufacturer"
+rule R2 {
+  description: "All participants can read every other resource"
+  participant: "org.interwatch.watchain.*" 
+  operation: READ
+  resource: "org.interwatch.watchain.*"
+  action:ALLOW
+}
+
+rule R3 {
+  description: "All participants can report theft for the watches they own"
+  participant(p): "org.interwatch.watchain.*"
   operation: ALL
-  resource(r): "org.watchain.watchain.Order"
+  resource(r): "org.interwatch.watchain.ReportTheft"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R18 {
-  description: "Manufacturer can mark an order when accepted"
-  participant(p): "org.watchain.watchain.Manufacturer"
-  operation: ALL
-  resource(r): "org.watchain.watchain.AcceptOrder"
-  condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
-  action: ALLOW
-}
-
-rule R29 {
-  description: "Manufacturer can mark an order when ready"
-  participant(p): "org.watchain.watchain.Manufacturer"
-  operation: ALL
-  resource(r): "org.watchain.watchain.OrderReady"
-  condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
-  action: ALLOW
-}
-
-
-rule R19 {
-  description: "ALL participants can report theft for the watches they own"
-  participant(p): "org.watchain.watchain.*"
-  operation: ALL
-  resource(r): "org.watchain.watchain.ReportTheft"
-  condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
-  action: ALLOW
-}
-
-rule R20 {
+rule R4 {
   description: "All participants can update the watches they owns"
-  participant(p): "org.watchain.watchain.*"
+  participant(p): "org.interwatch.watchain.*"
   operation: UPDATE
-  resource(r): "org.watchain.watchain.Watch"
+  resource(r): "org.interwatch.watchain.Watch"
   condition:(r.owner.getIdentfier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R21 {
-  description: "All participants can recover the watches they own only if they have reported a theft"
-  participant(p): "org.watchain.watchain.*"
+rule R5 {
+  description: "All participants can recover a theft for watches they own"
+  participant(p): "org.interwatch.watchain.*"
   operation: ALL
-  resource(r): "org.watchain.watchain.RecoverTheft"
-  //transaction(tx): "org.watchain.watchain.ReportTheft"
+  resource(r): "org.interwatch.watchain.RecoverTheft"
+  //transaction(tx): "org.interwatch.watchain.ReportTheft"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R12 {
-  description: "Collector can see any new watch"
-  participant: "org.watchain.watchain.Collector"
-  operation: READ
-  resource: "org.watchain.watchain.Watch"
+rule R6 {
+  description: "Manufacturer can update any watches it manufactured"
+  participant(p): "org.interwatch.watchain.Manufacturer"
+  operation: UPDATE
+  resource(r): "org.interwatch.watchain.Watch"
+  condition:(r.manufacturer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
+rule R7 {
+  description: "Manufacturer create any watches it manufactures"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: CREATE
+  resource: "org.interwatch.watchain.Watch"
+  action: ALLOW
+}
+
+rule R8 {
+  description: "Manufacturer has full access to its profile"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource: "org.interwatch.watchain.Manufacturer"
+  action: ALLOW
+}
+
+rule R9 {
+  description: "Manufacturer has full access to create watch transaction"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource: "org.interwatch.watchain.CreateWatch"
+  action: ALLOW
+}
+
+rule R10 {
+  description: "Manufacturer has full access on orders for the watch it owns"
+  participant(p): "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource(r): "org.interwatch.watchain.Order"
+  condition:(r.watch.owner.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
 
 rule R11 {
-  description: "Collector can place and see orders only for watches marked NEW "
-  participant: "org.watchain.watchain.Collector"
-  operation: CREATE
-  resource: "org.watchain.watchain.Order"
+  description: "Manufacturer can mark an order when accepted"
+  participant(p): "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource(r): "org.interwatch.watchain.AcceptOrder"
+  condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R26 {
-  description: "Collector has full access over the create order transaction "
-  participant: "org.watchain.watchain.Collector"
+rule R12 {
+  description: "Manufacturer can mark an order when ready"
+  participant(p): "org.interwatch.watchain.Manufacturer"
   operation: ALL
-  resource: "org.watchain.watchain.CreateOrder"
+  resource(r): "org.interwatch.watchain.OrderReady"
+  condition:(r.order.watch.owner.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule R13 {
+  description: "Collector can see any new watch"
+  participant: "org.interwatch.watchain.Collector"
+  operation: READ
+  resource: "org.interwatch.watchain.Watch"
+  action: ALLOW
+}
+
+rule R14 {
+  description: "Collector can accss his own orders only "
+  participant(p): "org.interwatch.watchain.Collector"
+  operation: READ, UPDATE, CREATE
+  resource(r): "org.interwatch.watchain.Order"
+  condition:(r.orderer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
 rule R15 {
-  description: "Collector only see and updates his own orders"
-  participant(p): "org.watchain.watchain.Collector"
-  operation: READ, UPDATE
-  resource(r): "org.watchain.watchain.Order"
-  //transaction(tx): "org.watchain.watchain.CreateOrder"
-  condition:(r.orderer.getIdentifier() == p.getIdentifier())
+  description: "Collector has full access over the create order transaction "
+  participant: "org.interwatch.watchain.Collector"
+  operation: ALL
+  resource: "org.interwatch.watchain.CreateOrder"
   action: ALLOW
 }
 
 rule R16 {
   description: "Collector has full access to his own profile only"
-  participant(p): "org.watchain.watchain.Collector"
+  participant(p): "org.interwatch.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.watchain.Collector"
+  resource(r): "org.interwatch.watchain.Collector"
   condition:(r.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-//transform order into a transaction to create orders that I can then see. To check that I order only watches that exist.
-rule R4 {
-  description: "Collector can read and update watches"
-  participant: "org.watchain.watchain.Collector"
-  operation: READ, UPDATE
-  resource: "org.watchain.watchain.Watch"
+rule R17 {
+  description: "Collector can see update a watch it ordered"
+  participant: "org.interwatch.watchain.Collector"
+  operation: UPDATE
+  resource: "org.interwatch.watchain.Watch"
   action: ALLOW
 }
 
-rule R5 {
-  description: "Every participant can read any watch on auction"
-  participant: "org.watchain.watchain.*"
-  operation: READ
-  resource: "org.watchain.watchain.WatchListing"
+rule R18 {
+  description: "Collector can create a listing for a watch it owns"
+  participant(p): "org.interwatch.watchain.Collector"
+  operation: CREATE
+  resource(r): "org.interwatch.watchain.MakeListing"
+  condition:(r.listing.watch.owner.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R6 {
+rule R32 {
+  description: "Collector can update a listing when it submits an offer"
+  participant: "org.interwatch.watchain.Collector"
+  operation: UPDATE
+  resource: "org.interwatch.watchain.WatchListing"
+  action: ALLOW
+}
+
+rule R19 {
+  description: "Collector can submit an offer for a watch listing"
+  participant: "org.interwatch.watchain.Collector"
+  operation: CREATE
+  resource: "org.interwatch.watchain.Offer"
+  action: ALLOW
+}
+
+rule R20 {
   description: "Collector has full access over the auction of his own watches"
-  participant(p): "org.watchain.watchain.Collector"
+  participant(p): "org.interwatch.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.watchain.WatchListing"
+  resource(r): "org.interwatch.watchain.WatchListing"
   condition:(r.watch.owner.getIdentifier() == p.getIdentifier()) 
   action: ALLOW
 }
 
-rule R31 {
-  description: "Collectors can mark an order as received and triggle the payment"
-  participant(p): "org.watchain.watchain.Collector"
+rule R21 {
+  description: "Collector can mark an order as received and triggle the payment"
+  participant(p): "org.interwatch.watchain.Collector"
   operation: ALL
-  resource(r): "org.watchain.watchain.Received"
+  resource(r): "org.interwatch.watchain.Received"
   condition:(r.order.orderer.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-
-rule R8 {
-  description: "Collectors can delete only watches they own if they submit the reportTheft transaction"
-  participant(p): "org.watchain.watchain.Collector"
-  operation: DELETE
-  resource(r): "org.watchain.watchain.Watch"
-  transaction(tx): "org.watchain.watchain.ReportTheft"
-  condition:(r.owner.getIdentifier() == p.getIdentifier())
+rule R31 {
+  description: "Collector can update manufacturr"
+  participant: "org.interwatch.watchain.Collector"
+  operation: UPDATE
+  resource: "org.interwatch.watchain.Manufacturer"
   action: ALLOW
 }
 
-
-rule R7 {
-  description: "Courier has full access to contract contract"
-  participant: "org.watchain.watchain.Courier"
+rule R22 {
+  description: "Courier has full access to a contract"
+  participant: "org.interwatch.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.watchain.Contract"
+  resource: "org.interwatch.watchain.Contract"
   action: ALLOW
 }
 
-rule R33 {
+rule R23 {
   description: "Courier can submit delivered transaction"
-  participant: "org.watchain.watchain.Courier"
+  participant: "org.interwatch.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.watchain.Delivered"
+  resource: "org.interwatch.watchain.Delivered"
   action: ALLOW
 }
 
-
-rule R27 {
-  description: "Courier can create a delivery  contract"
-  participant: "org.watchain.watchain.Courier"
+rule R24 {
+  description: "Courier has full access to a delivery contract"
+  participant: "org.interwatch.watchain.Courier"
   operation: ALL
-  resource: "org.watchain.watchain.CreateContract"
+  resource: "org.interwatch.watchain.DeliveryContract"
   action: ALLOW
 }
 
-rule R28 {
-  description: "Courier can read and update any order"
-  participant: "org.watchain.watchain.Courier"
-  operation: READ, UPDATE
-  resource: "org.watchain.watchain.Order"
+rule R25 {
+  description: "Courier can update any order"
+  participant: "org.interwatch.watchain.Courier"
+  operation: UPDATE
+  resource: "org.interwatch.watchain.Order"
   action: ALLOW
 }
 
-rule R30 {
+rule R26 {
   description: "Courier can submit a delivered transaction if it signed a contract for delivery for the same order"
-  participant(p): "org.watchain.watchain.Courier"
+  participant(p): "org.interwatch.watchain.Courier"
   operation: ALL
-  resource(r): "org.watchain.watchain.Delivered"
+  resource(r): "org.interwatch.watchain.Delivered"
   condition:(r.order.contract.courier.getIdentifier() == p.getIdentifier())
   action: ALLOW
 }
 
-rule R35 {
+rule R27 {
   description: "Auctioneer can submit the terminate bidding transaction"
-  participant: "org.watchain.watchain.Auctioneer"
+  participant: "org.interwatch.watchain.Auctioneer"
   operation: CREATE
-  resource: "org.watchain.watchain.TerminateBidding"
+  resource: "org.interwatch.watchain.TerminateBidding"
   action: ALLOW
 }
 
-rule R36 {
+rule R28 {
   description: "Auctioneer can update a listing"
-  participant: "org.watchain.watchain.Auctioneer"
+  participant: "org.interwatch.watchain.Auctioneer"
   operation: UPDATE
-  resource: "org.watchain.watchain.WatchListing"
+  resource: "org.interwatch.watchain.WatchListing"
   action: ALLOW
 }
 
-rule R37 {
+rule R29 {
   description: "Auctioneer can update the status of a watch when its auction is terminated"
-  participant: "org.watchain.watchain.Auctioneer"
+  participant: "org.interwatch.watchain.Auctioneer"
   operation: UPDATE
-  resource: "org.watchain.watchain.Watch"
+  resource: "org.interwatch.watchain.Watch"
   action: ALLOW
 }
 
-rule R38 {
+rule R30 {
   description: "Auctioneer can update a participant who made a watch listing"
-  participant: "org.watchain.watchain.Auctioneer"
+  participant: "org.interwatch.watchain.Auctioneer"
   operation: UPDATE
-  resource: "org.watchain.watchain.Collector"
+  resource: "org.interwatch.watchain.Collector"
   action: ALLOW
 }
-
-
- // ass rule: "Courier in the contract has access to the order if it operates in the country of collector"
-
 
 rule SystemACL {
     description:  "System ACL to permit all access"

@@ -34,10 +34,12 @@ abstract participant Person extends User {
   o DeathDetails deathDetails optional
   o Gender gender optional
 }
+
+participant Collector extends Person {
+  o Double availableBalance
+  o Double frozenBalance optional
+} 
    
-/**
- * An abstract participant type in this business network
- */
 abstract participant Business extends User {
   o Address headquarters optional
   o String companyName optional
@@ -73,10 +75,6 @@ participant Auctioneer extends Person {
 participant Insurer extends Business {
 }
 
-participant Collector extends Person {
-  o Double availableBalance
-  o Double frozenBalance optional
-} 
 
 participant Courier extends Business {
 }

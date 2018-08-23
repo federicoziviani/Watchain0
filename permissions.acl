@@ -28,6 +28,14 @@ rule R2 {
   action:ALLOW
 }
 
+rule R89 {
+  description: "Collector can update contract "
+  participant: "org.interwatch.watchain.Collector"
+  operation: UPDATE
+  resource: "org.interwatch.watchain.Contract"
+  action: ALLOW
+}
+
 rule R3 {
   description: "All participants can report theft for the watches they own"
   participant(p): "org.interwatch.watchain.*"
@@ -81,14 +89,6 @@ rule R8 {
   action: ALLOW
 }
 
-rule R9 {
-  description: "Manufacturer has full access to create watch transaction"
-  participant: "org.interwatch.watchain.Manufacturer"
-  operation: ALL
-  resource: "org.interwatch.watchain.CreateWatch"
-  action: ALLOW
-}
-
 rule R10 {
   description: "Manufacturer has full access on orders for the watch it owns"
   participant(p): "org.interwatch.watchain.Manufacturer"
@@ -125,7 +125,7 @@ rule R13 {
 }
 
 rule R14 {
-  description: "Collector can accss his own orders only "
+  description: "Collector can access his own orders only "
   participant(p): "org.interwatch.watchain.Collector"
   operation: READ, UPDATE, CREATE
   resource(r): "org.interwatch.watchain.Order"
@@ -158,8 +158,10 @@ rule R17 {
   action: ALLOW
 }
 
+
+
 rule R18 {
-  description: "Collector can create a listing for a watch it owns"
+  description: "Collector can create a listing for a watch he owns"
   participant(p): "org.interwatch.watchain.Collector"
   operation: CREATE
   resource(r): "org.interwatch.watchain.MakeListing"
@@ -167,8 +169,24 @@ rule R18 {
   action: ALLOW
 }
 
+rule R33 {
+  description: "Collector can not access the transactions to create new watches"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource: "org.interwatch.watchain.CreateWatch"
+  action: DENY
+}
+
+rule R9 {
+  description: "Manufacturer has full access to the create watch transactions"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource: "org.interwatch.watchain.CreateWatch"
+  action: ALLOW
+}
+
 rule R32 {
-  description: "Collector can update a listing when it submits an offer"
+  description: "Collector can update a listing when he submits an offer"
   participant: "org.interwatch.watchain.Collector"
   operation: UPDATE
   resource: "org.interwatch.watchain.WatchListing"

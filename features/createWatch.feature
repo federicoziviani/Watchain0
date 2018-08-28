@@ -148,23 +148,6 @@ Feature: Create Watch
             | userId | availableBalance | frozenBalance |
             | fede   | 8500.0           | 500.0         |
 
-   # Scenario: Collector can submit a create order transaction
-     #   When I use the identity fede1
-     ##   And I submit the following transaction of type org.interwatch.watchain.CreateOrder
-     #       | order |
-     #       | 3     |
-     #   Then I should have the following asset of type org.interwatch.watchain.Order
-      #      | orderId | watch      | orderer | orderStatus |
-      #      | 3       | 0000000003 | fede    | SUBMITTED   |
-
-
-   # Scenario: Collector can not order a watch that have already been ordered
-      #  When I use identity fede1
-        #And I add the following asset of type org.interwatch.watchain.Order
-          #  | orderId | watch      | orderer | orderStatus |
-          #  | 1       | 0000000000 | fede    | SUBMITTED   |
-        #Then I should get an error matching /Sorry, this watch with serial number 0000000000 has already been ordered/
-
     Scenario: Manufacturer can accept an order
         When I use the identity oris1
         And I submit the following transaction of type org.interwatch.watchain.AcceptOrder
@@ -182,6 +165,7 @@ Feature: Create Watch
         Then I should have the following asset of type org.interwatch.watchain.Order
             | orderId | watch      | orderer | orderStatus |
             | 4       | 0000000005 | fede    | READY       |
+
     Scenario: Courier can create a contract that assigns him deliver an order
         When I use the identity dhl1
         And I add the following asset of type org.interwatch.watchain.Contract
@@ -196,6 +180,7 @@ Feature: Create Watch
         And I should have the following asset of type org.interwatch.watchain.Order
             | orderId | watch      | orderer | orderStatus | courierAssigned |
             | 5       | 0000000006 | fede    | ON_DELIVERY | true            |
+            
     Scenario: The courier records a transaction when the order is delivered
         When I use the identity dhl1
         And I submit the following transaction of type org.interwatch.watchain.Delivered 

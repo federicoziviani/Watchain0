@@ -89,6 +89,14 @@ rule R8 {
   action: ALLOW
 }
 
+rule R9 {
+  description: "Manufacturer has full access to the create watch transactions"
+  participant: "org.interwatch.watchain.Manufacturer"
+  operation: ALL
+  resource: "org.interwatch.watchain.CreateWatch"
+  action: ALLOW
+}
+
 rule R10 {
   description: "Manufacturer has full access on orders for the watch it owns"
   participant(p): "org.interwatch.watchain.Manufacturer"
@@ -175,14 +183,6 @@ rule R33 {
   operation: ALL
   resource: "org.interwatch.watchain.CreateWatch"
   action: DENY
-}
-
-rule R9 {
-  description: "Manufacturer has full access to the create watch transactions"
-  participant: "org.interwatch.watchain.Manufacturer"
-  operation: ALL
-  resource: "org.interwatch.watchain.CreateWatch"
-  action: ALLOW
 }
 
 rule R32 {

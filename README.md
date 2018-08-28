@@ -16,7 +16,7 @@ This business network defines:
 `Watch` `WatchListing` `Order` `Contract` 
 
 **Transactions:**
-`Offer` `TerminateBidding` `CreateWatch` `MakeOrder` `ReportTheft` `TerminateBidding` `Delivery` `DeliveryReceived` `MakeListing` `RecoverTheft` `DeliveryContract` `Received` `OrderReady` `AcceptOrder`
+`Offer` `TerminateBidding` `CreateWatch` `MakeOrder` `ReportTheft` `TerminateBidding` `DeliveryReceived` `MakeListing` `RecoverTheft` `DeliveryContract` `Received` `OrderReady` `AcceptOrder`
 
 To test the first-hand functionalities of the Watchain, Business Network Definition, in the **Test** tab:
 
